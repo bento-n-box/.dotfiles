@@ -13,7 +13,7 @@ else
 fi
 local git_branch='$(git_prompt_info)%{$reset_color%}'
 
-PROMPT="☁☁ ${user_host} ${current_dir} ${rvm_ruby} ${git_branch}
+PROMPTæ="☁☁ ${user_host} ${current_dir} ${rvm_ruby} ${git_branch}
  ϟ %B$%b "
 RPS1="${return_code}"
 
