@@ -1,0 +1,151 @@
+[user]
+	name = Benton
+	email = bentonrochester@gmail.com
+[core]
+	excludesfile = /Users/bentonrr/.gitignore_global
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[alias]
+        rclone = clone --reference /git/cache.git/
+
+	last  = "!f() { git cat-file commit HEAD $@ | git name-rev --stdin ; } ; f"
+        cat   = -p cat-file -p
+
+        # works like git ls-files but first argument is a branch
+        ls-files-branch = "!f() { branch=\"${1:-HEAD}\" ; shift ; GIT_INDEX_FILE=~/tmp/temp-git-index ; git read-tree \"$branch\" && git ls-files $@ ; } ; f"
+
+        st    = "!f() { git ls-files --exclude-standard -t -u -s -m -d $@ | sed -e 's/C.*\t/C /' ; } ; f"
+        sto   = st -o
+
+        ds    = diff --stat
+        cds   = !git ds --cached
+
+        # format-patch is so damn long
+        fp    = format-patch
+
+        s     = "!git diff --name-status | sed -e 's/^/W /' ; git diff --cached --name-status | sed -e 's/^/C /'"
+
+        up    = !git remote update ; git gc
+
+        debug = !GIT_PAGER= gdb --args git
+
+        top = ref-parse --show-cdup
+
+        cur-branch = git rev-parse --revs-only --symbolic-full-name HEAD
+
+        push-head = !git push origin `git symbolic-ref HEAD`
+        publish = push publish
+        pushall = !git remote | xargs -n1 git push
+        pushalltags = !git remote | xargs -n1 git push --tags
+
+        tblog = log --not-grep='Auto.increment of build number due to changes in directory '
+        tblg  = "!f() { git lg $@ | grep -v '^[^(]*Auto.increment of build number due to changes in directory ' | less ; } ; f"
+        tbk   = !gitk --not-grep='Auto.increment of build number due to changes in directory '
+	tbrev = "!f() { git show \"$1\":include/dsa_version.h | awk '/define DSA_VERSION_STRING_A/ { print $3 }' ; } ; f"
+
+        vgc = repack -f -a -d --depth=100 --window=250 --max-pack-size=200m
+        nvgc = !ionice -n7 nice -n20 git vgc
+
+        svnup = !git config --get-regexp 'svn-remote.*url' | cut -d . -f 2 | xargs -n1 git svn fetch
+
+        #cvscommit = !git --git-dir=`cat CVS/GitDir` cvsexportcommit -c -p -v
+
+	log1 = log --pretty=oneline --abbrev-commit --decorate
+
+        lgbase = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --date=relative
+
+        lg  = !git lgbase --graph --abbrev-commit --date-order
+        lgr = !git lgbase -g
+
+        lgn = "!f() { git lgbase | git name-rev --stdin --name-only ; } ; f"
+        lgm = "!f() { \
+                local other=$1 ; shift ; \
+                if [ -z $other ] ; then \
+                    echo >&2 \"git lgm <branch> <branch> [ <branch> ... ]\" ; \
+                    return 1 ; \
+                fi ; \
+                local head=${2:-HEAD} ; shift ; \
+                local args=( $other $head $@ ) ; \
+                git lg ${args[*]} --not $( git merge-base ${args[*]} )~2 ; \
+            } ; f"
+
+        findnext = rev-list --reverse -n1 HEAD..master
+        checkoutnext = !git checkout `git findnext`
+
+        # create a new feature branch on the same remote as current branch
+        new-feature = "!f() { local feature=$1 remote=$2 base=$3 ; \
+                if [[ -z $feature ]] ; then \
+                    echo >&2 \"git new-feature <branch> [ <remote> ] \" ; \
+                    return 1 ; \
+                fi ; \
+                if [[ -z $remote ]] ; then \
+                    local cur=$( git rev-parse --revs-only --symbolic-full-name HEAD ) ; \
+                    cur=${cur#refs/heads/} ; \
+                    if [[ -z \"$cur\" || HEAD = $cur ]] ; then \
+                        echo >&2 \"current branch unknown\" ; \
+                        return 1 ; \
+                    fi ; \
+                    remote=$( git config branch.$cur.remote ) ; \
+                fi ; \
+                echo >&2 \"Creating feature branch '$feature' for remote '$remote'\" ; \
+                set -x ; \
+                git push \"$remote\" \"HEAD:$feature\" ; \
+                git checkout -t \"$remote/$feature\" ; \
+            } ; f"
+
+
+        # example: git subdo pull
+        subdo = submodule foreach git
+
+        case = !sh -c 'exec /home/oxygen/bart/work/git-case/git-case.git/git-case-$0 ${0+"$@"}'
+
+	edit-last-commit = !vim `git diff-tree -r --name-only HEAD HEAD~1`
+        edit-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; vim `f`"
+        add-unmerged = "!f() { git ls-files --unmerged | cut -f2 | sort -u ; }; git add `f`"
+
+	file-blame = !git ls-files | xargs -n1 -i{} git log -1 --pretty=format:\"%ci {}\" -- {}
+	amend = commit --amend -C HEAD
+	ff = merge --ff-only
+	staged = diff --cached
+
+        #test = !sh -c 'echo cmd=$1 arg1=$2 arg2=$3'
+	#dirstatus = !ls -d1 */.git | xargs -n1 -i{} sh -c \"cd {}/.. && echo Checking {} && git ls-files --exclude-standard -tousmd\"
+
+
+[giggle]
+	compact-mode = false
+	main-window-maximized = false
+	main-window-geometry = 1400x1050+0+0
+	history-view-vpane-position = 355
+	main-window-view = HistoryView
+	file-view-vpane-position = 491
+[pack]
+	threads = 4
+
+[push]
+	#default = tracking
+        default = matching
+
+[gc]
+        reflogexpire = 300
+        reflogexpireunreachable = 90
+
+[color "diff"]
+	frag = magenta reverse
+[git-p4]
+	user = bartt
+[diff]
+	tool = vimdiff
+	guitool = kdiff3
+[man]
+	viewer = man
+[help]
+	format = man
+[man "man"]
+	path = vman
+[url "git@github.com:rochestb/"]
+	insteadOf = github:
