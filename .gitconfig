@@ -50,7 +50,7 @@
         vgc = repack -f -a -d --depth=100 --window=250 --max-pack-size=200m
         nvgc = !ionice -n7 nice -n20 git vgc
 
-        svnup = !git config --get-regexp 'svn-remote.*url' | cut -d . -f 2 | xargs -n1 git svn fetch
+        svnup = !'-get-regexp 'svn-remote.*url' | cut -d . -f 2 | xargs -n1 git svn fetch
 
         #cvscommit = !git --git-dir=`cat CVS/GitDir` cvsexportcommit -c -p -v
 
