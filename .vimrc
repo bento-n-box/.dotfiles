@@ -3,7 +3,7 @@ set nocompatible " This setting prevents vim from emulating the original vi's bu
 
 " add utf-8 support
 set fileencodings=utf-8,latin2
-
+set number
 
 set bs=2    " allow backspacing over everything in insert mode
 set ai      " always set autoindenting on
@@ -29,9 +29,17 @@ set list
 set iskeyword+=-
 set lcs=tab:+-
 "set guifont=8x13bold
+;
+" Disable annoying beeping
+:set noerrorbells
+:set novisualbell
+:set errorbells
 
 nmap <silent> ,/ :nohlsearch<CR> " clear highlighted searches instead of /asdf
+xnoremap p pgvy
 
+:nmap <c-s> :w<CR> " save on ctrl+ s
+:imap <c-s> <Esc>:w<CR>a "Save o ntronrol s
 
 " Nerd Tree specific
 let NERDTreeShowFiles=1
@@ -55,6 +63,8 @@ autocmd BufRead *.pl set smartindent cinwords=if,elsif,else,for,while,try,except
 autocmd BufRead *.php set smartindent cinwords=if,elseif,else,for,while,try,except,finally,function,class,switch,case
 autocmd BufRead *.phpx set smartindent cinwords=if,elseif,else,for,while,try,except,finally,function,class,switch,case
 autocmd BufRead *.py set smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
+"Remove White space
+autocmd BufWritePre *.py :%s/\s\+$//e
 
 " / END UPDATED 2010.08.05
 
@@ -72,7 +82,6 @@ if &t_Co > 2 || has("gui_running")
   syntax on
   set hlsearch
 endif
-
 
 
 " Only do this part when compiled with support for autocommands.
@@ -217,6 +226,7 @@ Bundle 'nono/vim-handlebars'
 " Includes scss/sass
 Bundle 'tpope/vim-haml'
 
+Bundle 'airblade/vim-gitgutter'
 " Snipmate with dependancies
 " Snippets are here : https://github.com/honza/vim-snippets
 Bundle "MarcWeber/vim-addon-mw-utils"
@@ -228,6 +238,13 @@ Bundle 'scrooloose/nerdcommenter'
 Bundle 'scrooloose/nerdtree'
   autocmd vimenter * if !argc() | NERDTree | endif
 
+Bundle 'jsbeautify.vim'
+Bundle 'maksimr/vim-jsbeautify' 
+  Bundle 'einars/js-beautify' 
+
+    " set path to js-beautify file 
+    "   let g:jsbeautify_file = fnameescape(fnamemodify(expand("<sfile>"),
+    "   ":h")."/bundle/js-beautify/beautify.js")
 
 " CtrlP File Finder
 Bundle 'kien/ctrlp.vim'
