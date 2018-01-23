@@ -1,347 +1,189 @@
-"this must be first, because it changes other options as a side effect.
-set nocompatible " This setting prevents vim from emulating the original vi's bugs and limitations.
+ZSH=$HOME/.oh-my-zsh
+# Path to your oh-my-zsh configuration.
+# Set name of the theme to load.
+# Look in ~/.oh-my-zsh/themes/
+# Optionally, if you set this to "random", it'll load a random theme each
+# time that oh-my-zsh is loaded.
+ZSH_THEME="bira"
 
-" add utf-8 support
-set fileencodings=utf-8,latin2
-set number
+# Example aliases
+# alias zshconfig="mate ~/.zshrc"
+# alias ohmyzsh="mate ~/.oh-my-zsh"
 
-"set background=light
-"syntax enable
-"colorscheme SolarizedDark
-"let g:solarized_termcolors=256
-"
+# Set to this to use case-sensitive completion
+# CASE_SENSITIVE="true"
 
-let &runtimepath.=',~/.vim/bundle/ale'
+# Comment this out to disable bi-weekly auto-update checks
+# DISABLE_AUTO_UPDATE="true"
 
-set bs=2    " allow backspacing over everything in insert mode
-set ai      " always set autoindenting on
-"set backup " keep a backup file
-"set viminfo='20,\"50  " read/write a .viminfo file, don't store more than 50 lines of registers
-set history=50    " keep 50 lines of command line history
-set ruler    " show the cursor position all the time
-set tabstop=2 " ts
-set expandtab
-set noet "automatically convert tab chars into spaces
-set shiftwidth=2 " sw
-set softtabstop=2 " sts
-set expandtab " added 2012.03.20
-set smarttab
-set showmatch
-set nowrapscan
-set nowrap
-set nohlsearch
-set incsearch
-set ignorecase
-set nohlsearch
-set noswapfile
-set wmnu
-set list
-set iskeyword+=-
-set lcs=tab:+-
-"set guifont=8x13bold
-;
-" Disable annoying beeping
-:set noerrorbells
-:set novisualbell
-:set errorbells
+# Uncomment to change how many often would you like to wait before auto-updates occur? (in days)
+# export UPDATE_ZSH_DAYS=13
 
-nmap <silent> ,/ :nohlsearch<CR> " clear highlighted searches instead of /asdf
-xnoremap p pgvy
+# Uncomment following line if you want to disable colors in ls
+# DISABLE_LS_COLORS="true"
 
-:nmap <c-s> :w<CR> " save on ctrl+ s
-:imap <c-s> <Esc>:w<CR>a "Save o ntronrol s
+# Uncomment following line if you want to disable autosetting terminal title.
+# DISABLE_AUTO_TITLE="true"
 
-" Nerd Tree specific
-let NERDTreeShowFiles=1
-let NERDTreeShowHidden=1
-let g:ctrlp_dont_split = 'NERD_tree_2'
+# Uncomment following line if you want red dots to be displayed while waiting for completion
+# COMPLETION_WAITING_DOTS="true"
 
-"" skip the c-w
-nnoremap <C-j> <C-W><C-J>
-nnoremap <C-k> <C-W><C-K>
-nnoremap <C-l> <C-W><C-L>
-nnoremap <C-h> <C-W><C-H>
-
-"nnoremap :set paste! "avoid staircase affect when pasting mulitple lines
-"nnoremap <F5> :set invpaste paste?<Enter>
-map <F5> :set invpaste paste?<Enter>
-imap <F5> <C-O><F5>
-set pastetoggle=<F5> " hit F5 before and after pasting
-nnoremap <F2> :NERDTreeToggle<CR>
+# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
+# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+plugins=(git)
 
 
-" UPDATED 2010.08.05
-set complete=.,w,b,u,t,i,k " keyword completion with CTRL-P or N
-" :help options -> left off at line 2570
+# Set git autocompletion and PS1 integration
+if [ -f /usr/local/git/contrib/completion/git-completion.bash ]; then
+  . /usr/local/git/contrib/completion/git-completion.bash
+fi
+if [ -f /opt/local/share/doc/git-core/contrib/completion/git-prompt.sh ]; then
+    . /opt/local/share/doc/git-core/contrib/completion/git-prompt.sh
+fi
+GIT_PS1_SHOWDIRTYSTATE=true
 
-autocmd BufRead *.asp set smartindent cinwords=if,elsif,else,for,while,try,except,finally,sub,class,switch,case
-autocmd BufRead *.htx set smartindent cinwords=if,elsif,else,for,while,try,except,finally,sub,class,switch,case
-autocmd BufRead *.js set smartindent cinwords=if,else,for,while,try,except,finally,function,switch,case
-autocmd BufRead *.pl set smartindent cinwords=if,elsif,else,for,while,try,except,finally,sub,class,switch,case
-autocmd BufRead *.php set smartindent cinwords=if,elseif,else,for,while,try,except,finally,function,class,switch,case
-autocmd BufRead *.phpx set smartindent cinwords=if,elseif,else,for,while,try,except,finally,function,class,switch,case
-autocmd BufRead *.py set smartindent cinwords=if,elif,else,for,while,try,except,finally,def,class
-"Remove White space
-autocmd BufWritePre *.py :%s/\s\+$//e
-
-" / END UPDATED 2010.08.05
+alias gs="git status"
+alias gp="git push origin"
 
 
-let g:ale_sign_error = '⚠'
-let g:ale_sign_warning = '✗'
-let g:ale_lint_on_text_changed = 'never'
+function detect_git_dirty {
+  local git_status=$(git status 2>&1 | tail -n1)
+  [[ $git_status != "fatal: Not a git repository (or any of the parent
+  directories): .git" ]] && [[ $git_status != "nothing to commit (working
+  directory clean)" ]] && echo "*"
+}
 
-" Eslint vs. Standard
-" "
-" ----------------------------------------------------------------------------
+function detect_git_branch {
+  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e "s/* \(.*\)/\1/"
+}
+function dev_info {
+  echo "[$(detect_git_branch)$(detect_git_dirty)]"
+}
 
-function! CheckForEslintPkgJson() abort
-  let packagejsonpath = findfile('package.json', '.;')
+source $ZSH/oh-my-zsh.sh
 
-  if packagejsonpath !=# ''
-    let packagejson = join(readfile(packagejsonpath), '')
+alias tails='tail -f log/development.log'
+alias ebash='vim ~/.bash_profile'
+alias rebash='. ~/.bash_profile'
+alias ehosts='sudo mvim /etc/hosts'
+alias tmamp='tail -f /Applications/MAMP/logs/*'
+alias tache='tail -f /var/log/apache2/*'
+alias vinstall= 'vim +PluginInstall +qall'
+alias vimrc='vim ~/.vimrc'
+alias gvimrc='vim ~/.gvimrc'
+alias rmlogs="sudo rm -f /private/var/log/asl/*.asl"
+alias ephp="sudo vim /etc/php.ini"
+alias apr="sudo apachectl restart"
+alias iphone="open /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\ Simulator.app"
+alias ngxweb="sudo nginx -g 'daemon off;' -c nginx.conf -p ~/Development/VO/webclient-server"
+alias ngxstop="sudo nginx -s stop"
+alias updateVUI= "cd ~/Development/VO/victory-ui/ && npm version patch && npm publish && git push upstream HEAD:master --tags"
+alias clearStaging= "ssh repl1.stg.den02.victorops.net 'rm -rf .amm .ammonite'"
+alias clearProd= "ssh repl1.pr.den02.victorops.net 'rm -rf .amm .ammonite'"
+alias clearManual= "rm -rf .ammonite .amm"
+alias repl="~/Development/VO/platform-repl/scripts/repl stage"
+alias webvi="vim ~/Development/VO/webclient"
+alias webbuild="cd ~/Development/VO/webclient && npm run build:watch"
+alias gtw="cd ~/Development/VO/webclient"
+alias gtv="cd ~/Development/VO/victory-ui"
+alias nb="git checkout development && git pull upstream development && git checkout -b"
+alias gcp="git cherry-pick"
+#alias killnginx ="sudo kill $(ps aux | grep '[n]ginx' | awk '$2')"
 
-    return has_key(JSON#parse(packagejson), 'eslintConfig')
+function getOption() {
+  PS3='Please enter your choice: '
+  options=("Option 1" "Option 2" "Option 3" "Quit")
+  select opt in "${options[@]}"
+  do
+    case $opt in
+      "Option 1")
+        echo "you chose choice 1"
+        ;;
+      "Option 2")
+        echo "you chose choice 2"
+        ;;
+      "Option 3")
+        echo "you chose choice 3"
+        ;;
+      "Quit")
+        break
+        ;;
+      *) echo invalid option;;
+    esac
+  done
+}
+
+function gitURL {
+  if [[ "$(git config remote.upstream.url)" != "" ]]; then
+    echo $(git config remote.upstream.url | cut -d: -f2-3 | cut -d. -f1)
   else
-    return 0
-  endif
-endfunction
+    echo $(git config remote.origin.url | cut -d: -f2-3 | cut -d. -f1)
+  fi
+}
 
+function create_ssh_pr {
+  branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+  echo "https://github.com/"$(gitURL)"/compare/development...rochestb:$branch"
+}
 
-function! CheckForEslint()
+alias opr='open -a /Applications/Chrome\.app $(create_ssh_pr)'
 
-  " @see: https://vimhelp.appspot.com/editing.txt.html#file-searching
-  let eslintconfig =
-  \ findfile('.eslintrc', '.;', -1) +
-  \ findfile('.eslintrc.js', '.;', -1) +
-  \ findfile('.eslintrc.json', '.;', -1) +
-  \ findfile('.eslintrc.yaml', '.;', -1) +
-  \ findfile('.eslintrc.yml', '.;', -1)
+function create_branch_pr {
+  branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+  remote=$(git config remote.origin.url | cut -d. -f1-2)
+  echo "$remote/compare/develop...$branch"
+}
 
-  if len(eslintconfig) > 0
-    return 1
-  else
-    return CheckForEslintPkgJson()
-  endif
-endfunction
+alias ophr='open -a /Applications/Google\ Chrome.app $(create_branch_pr)'
 
-if CheckForEslint()
-  let g:ale_linters = {
-        \   'javascript': ['eslint'],
-        \ }
-else
-  let g:ale_linters = {
-        \   'javascript': ['standard'],
-        \ }
-endif
+connectMe () {
+  open -a /Applications/Google\ Chrome.app 'https://victorops.atlassian.net/secure/RapidBoard.jspa?projectKey=PBJ'
+  open -a /Applications/Google\ Chrome.app 'https://mail.google.com/mail/u/1/#inbox'
+  open -a /Applications/Google\ Chrome.app 'https://mail.google.com/mail/u/0/#inbox'
+}
 
+myprs () {
+  open -a /Applications/Google\ Chrome.app 'https://github.com/pulls/review-requested'
+}
 
-" Don't use Ex mode, use Q for formatting
-map Q gq
+ob () {
+  open -a /Applications/Google\ Chrome.app 'https://github.com/victorops/webclient/tree/'$(detect_git_branch)'/'$1
+}
 
-" Make p in Visual mode replace the selected text with the "" register.
-vnoremap p <Esc>:let current_reg = @"<CR>gvdi<C-R>=current_reg<CR><Esc>
+ojt () {
+  open -a /Applications/Google\ Chrome.app 'https://victorops.atlassian.net/browse/'$(detect_git_branch)
+}
 
-"" Switch syntax highlighting on, when the terminal has colors
-"" Also switch on highlighting the last used search pattern.
-if &t_Co > 2 || has("gui_running")
-  syntax on
-  set hlsearch
-endif
+ojb () {
+  open -a /Applications/Google\ Chrome.app 'https://victorops.atlassian.net/secure/RapidBoard.jspa?projectKey=PBJ'
+}
 
+oj () {
+ open -a /Applications/Google\ Chrome.app 'https://victorops.atlassian.net/browse/'$1
+}
 
-" Only do this part when compiled with support for autocommands.
-if has("autocmd")
+getUnused () {
+  awk '{for (I=1;I<=NF;I++) if ($I == "unused" && index($NF, "node_modules") == 0 ) { print $(I+0) " " $(I+1) " " $(I+2) " ------------->  " $(I+3) " " $(NF)};}' $1
+}
 
- " In text files, always limit the width of text to 78 characters
- "autocmd BufRead *.txt set tw=78
+commit () {
+  git commit -m "$(detect_git_branch) - $1"
+}
 
- augroup cprog
-  " Remove all cprog autocommands
-  au!
+ggrep () {
+  git grep "$1"
+}
 
-  " When starting to edit a file:
-  "   For C and C++ files set formatting of comments and set C-indenting on.
-  "   For other files switch it off.
-  "   Don't change the order, it's important that the line with * comes first.
-  autocmd FileType *      set formatoptions=tcql nocindent comments&
-  autocmd FileType c,cpp  set formatoptions=croql cindent comments=sr:/*,mb:*,el:*/,://
- augroup END
-
- augroup gzip
-  " Remove all gzip autocommands
-  au!
-
-  " Enable editing of gzipped files
-  " set binary mode before reading the file
-  autocmd BufReadPre,FileReadPre  *.gz,*.bz2 set bin
-  autocmd BufReadPost,FileReadPost  *.gz call GZIP_read("gunzip")
-  autocmd BufReadPost,FileReadPost  *.bz2 call GZIP_read("bunzip2")
-  autocmd BufWritePost,FileWritePost  *.gz call GZIP_write("gzip")
-  autocmd BufWritePost,FileWritePost  *.bz2 call GZIP_write("bzip2")
-  autocmd FileAppendPre      *.gz call GZIP_appre("gunzip")
-  autocmd FileAppendPre      *.bz2 call GZIP_appre("bunzip2")
-  autocmd FileAppendPost    *.gz call GZIP_write("gzip")
-  autocmd FileAppendPost    *.bz2 call GZIP_write("bzip2")
-
-  " After reading compressed file: Uncompress text in buffer with "cmd"
-  fun! GZIP_read(cmd)
-    " set 'cmdheight' to two, to avoid the hit-return prompt
-    let ch_save = &ch
-    set ch=3
-    " when filtering the whole buffer, it will become empty
-    let empty = line("'[") == 1 && line("']") == line("$")
-    let tmp = tempname()
-    let tmpe = tmp . "." . expand("<afile>:e")
-    " write the just read lines to a temp file "'[,']w tmp.gz"
-    execute "'[,']w " . tmpe
-    " uncompress the temp file "!gunzip tmp.gz"
-    execute "!" . a:cmd . " " . tmpe
-    " delete the compressed lines
-    '[,']d
-    " read in the uncompressed lines "'[-1r tmp"
-    set nobin
-    execute "'[-1r " . tmp
-    " if buffer became empty, delete trailing blank line
-    if empty
-      normal Gdd''
-    endif
-    " delete the temp file
-    call delete(tmp)
-    let &ch = ch_save
-    " When uncompressed the whole buffer, do autocommands
-    if empty
-      execute ":doautocmd BufReadPost " . expand("%:r")
-  endfun
-
-  " After writing compressed file: Compress written file with "cmd"
-  fun! GZIP_write(cmd)
-    if rename(expand("<afile>"), expand("<afile>:r")) == 0
-      execute "!" . a:cmd . " <afile>:r"
-    endif
-  endfun
-
-  " Before appending to compressed file: Uncompress file with "cmd"
-  fun! GZIP_appre(cmd)
-    execute "!" . a:cmd . " <afile>"
-    call rename(expand("<afile>:r"), expand("<afile>"))
-  endfun
-
- augroup END
-
- " This is disabled, because it changes the jumplist.  Can't use CTRL-O to go
- " back to positions in previous files more than once.
- if 0
-  " When editing a file, always jump to the last cursor position.
-  " This must be after the uncompress commands.
-   autocmd BufReadPost * if line("'\"") && line("'\"") <= line("$") | exe "normal `\"" | endif
- endif
-
-endif " has("autocmd")
-
-
-
-au BufNewFile,BufRead *.php,*.php3,*.inc,*.module,*.info,*.install set ft=php
-au BufNewFile,BufRead *.nqc,*.cpp,*.c,*.as                         set ft=cpp
-au BufNewFile,BufRead *.cgi,*.plx,*.pl                             set ft=perl
-au BufNewFile,BufRead *.scss                                       set ft=scss
-
-
-
-" MY ADDITIONS : 2008.12.11
-
-" Shortcuts for moving between tabs.
-" Alt-j to move to the tab to the left
-noremap <A-j> gT
-" Alt-k to move to the tab to the right
-noremap <A-k> gt
-
-" tComment
-"map <leader>c <c-_><c-_>
-
-
-" http://www.vim.org/scripts/script.php?script_id=2540
-filetype off
-filetype indent plugin on
-
-
-
-
-
-
-" ---------------- Plugins
-" ----------------
-" ----------------
-" ----------------
-" ----------------
-" ----------------
-" ----------------
-
-
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'w0rp/ale'
-
-Bundle 'gmarik/vundle'
-
-Bundle 'Lokaltog/vim-easymotion'
-Bundle 'tpope/vim-surround'
-
-Bundle 'tpope/vim-fugitive'
-Bundle 'mattn/webapi-vim'
-Bundle 'mattn/gist-vim'
-  let g:gist_clip_command = 'pbcopy'
-  let g:gist_show_privates = 1
-
-Bundle 'mutewinter/vim-css3-syntax'
-Bundle 'pangloss/vim-javascript'
-Bundle 'leshill/vim-json'
-Bundle 'nono/vim-handlebars'
-" Bundle 'othree/html5.vim'
-
-" Includes scss/sass
-Bundle 'tpope/vim-haml'
-
-Bundle 'airblade/vim-gitgutter'
-" Snipmate with dependancies
-" Snippets are here : https://github.com/honza/vim-snippets
-Bundle "MarcWeber/vim-addon-mw-utils"
-Bundle "tomtom/tlib_vim"
-Bundle "honza/vim-snippets"
-Bundle "garbas/vim-snipmate"
-
-Bundle 'scrooloose/nerdcommenter'
-Bundle 'scrooloose/nerdtree'
-Bundle 'tpope/vim-vinegar'
-  autocmd vimenter * if !argc() | NERDTree | endif
-
-Bundle 'jsbeautify.vim'
-Bundle 'maksimr/vim-jsbeautify' 
-  Bundle 'einars/js-beautify' 
-
-    " set path to js-beautify file 
-    "   let g:jsbeautify_file = fnameescape(fnamemodify(expand("<sfile>"),
-    "   ":h")."/bundle/js-beautify/beautify.js")
-
-" CtrlP File Finder
-Bundle 'kien/ctrlp.vim'
-  set wildignore+=*/tmp/*,*.so,*.swp,*.zip    " Linux/MacOSX
-  let g:ctrlp_map = '<c-p>'
-  let g:ctrlp_cmd = 'CtrlP'
-  let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\.git$\|\.hg$\|\.svn$\|\.yardoc\|node_modules\|\node_modules\|public\/images\|public\/system\|data\|log\|tmp$',
-    \ 'file': '\.exe$\|\.so$\|\.dat$'
-    \ }
-
-
-Bundle 'dracula/vim'
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-
-
-
+gapp () {
+  git grep -nr "$1" js/app"$2"
+}
+gadmin () {
+  git grep -nr "$1" js/admin"$2"
+}
+gcomp () {
+  git grep -nr "$1" js/components"$2"
+}
+gscss () {
+  git grep -nr "$1" scss"$2"
+}
