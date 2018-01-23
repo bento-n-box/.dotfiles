@@ -5,6 +5,14 @@ set nocompatible " This setting prevents vim from emulating the original vi's bu
 set fileencodings=utf-8,latin2
 set number
 
+"set background=light
+"syntax enable
+"colorscheme SolarizedDark
+"let g:solarized_termcolors=256
+"
+
+"let &runtimepath.=',~/.vim/bundle/ale'
+
 set bs=2    " allow backspacing over everything in insert mode
 set ai      " always set autoindenting on
 "set backup " keep a backup file
@@ -12,6 +20,7 @@ set ai      " always set autoindenting on
 set history=50    " keep 50 lines of command line history
 set ruler    " show the cursor position all the time
 set tabstop=2 " ts
+set expandtab
 set noet "automatically convert tab chars into spaces
 set shiftwidth=2 " sw
 set softtabstop=2 " sts
@@ -24,10 +33,12 @@ set nohlsearch
 set incsearch
 set ignorecase
 set nohlsearch
+set noswapfile
 set wmnu
 set list
 set iskeyword+=-
 set lcs=tab:+-
+set splitright
 "set guifont=8x13bold
 ;
 " Disable annoying beeping
@@ -35,21 +46,37 @@ set lcs=tab:+-
 :set novisualbell
 :set errorbells
 
+ if has('nvim')
+     nmap <BS> <C-W>h
+ endif
+
 nmap <silent> ,/ :nohlsearch<CR> " clear highlighted searches instead of /asdf
 xnoremap p pgvy
 
-:nmap <c-s> :w<CR> " save on ctrl+ s
-:imap <c-s> <Esc>:w<CR>a "Save o ntronrol s
 
 " Nerd Tree specific
 let NERDTreeShowFiles=1
 let NERDTreeShowHidden=1
+let g:ctrlp_dont_split = 'NERD_tree_2'
+
+"" skip the c-w
+nnoremap <C-j> <C-W><C-J>
+nnoremap <C-k> <C-W><C-K>
+nnoremap <C-l> <C-W><C-L>
+nnoremap <C-h> <C-W><C-H>
+nnoremap <c-j> <C-W><C-J>
+nnoremap <c-k> <C-W><C-K>
+nnoremap <c-l> <C-W><C-L>
+nnoremap <c-h> <C-W><C-H>
+
+
 
 "nnoremap :set paste! "avoid staircase affect when pasting mulitple lines
 "nnoremap <F5> :set invpaste paste?<Enter>
 map <F5> :set invpaste paste?<Enter>
 imap <F5> <C-O><F5>
 set pastetoggle=<F5> " hit F5 before and after pasting
+nnoremap <F2> :NERDTreeToggle<CR>
 
 
 " UPDATED 2010.08.05
@@ -69,6 +96,53 @@ autocmd BufWritePre *.py :%s/\s\+$//e
 " / END UPDATED 2010.08.05
 
 
+let g:ale_sign_error = '⚠'
+let g:ale_sign_warning = '✗'
+let g:ale_lint_on_text_changed = 'never'
+
+" Eslint vs. Standard
+" " " ----------------------------------------------------------------------------
+
+function! CheckForEslintPkgJson() abort
+  let packagejsonpath = findfile('package.json', '.;')
+
+  if packagejsonpath !=# ''
+    let packagejson = join(readfile(packagejsonpath), '')
+
+    return has_key(JSON#parse(packagejson), 'eslintConfig')
+  else
+    return 0
+  endif
+endfunction
+
+
+function! CheckForEslint()
+
+  " @see: https://vimhelp.appspot.com/editing.txt.html#file-searching
+  let eslintconfig =
+  \ findfile('.eslintrc', '.;', -1) +
+  \ findfile('.eslintrc.js', '.;', -1) +
+  \ findfile('.eslintrc.json', '.;', -1) +
+  \ findfile('.eslintrc.yaml', '.;', -1) +
+  \ findfile('.eslintrc.yml', '.;', -1)
+
+  if len(eslintconfig) > 0
+    return 1
+  else
+    return CheckForEslintPkgJson()
+  endif
+endfunction
+
+if CheckForEslint()
+  let g:ale_linters = {
+        \   'javascript': ['eslint'],
+        \ }
+else
+  let g:ale_linters = {
+        \   'javascript': ['standard'],
+        \ }
+endif
+
 
 " Don't use Ex mode, use Q for formatting
 map Q gq
@@ -76,8 +150,8 @@ map Q gq
 " Make p in Visual mode replace the selected text with the "" register.
 vnoremap p <Esc>:let current_reg = @"<CR>gvdi<C-R>=current_reg<CR><Esc>
 
-" Switch syntax highlighting on, when the terminal has colors
-" Also switch on highlighting the last used search pattern.
+"" Switch syntax highlighting on, when the terminal has colors
+"" Also switch on highlighting the last used search pattern.
 if &t_Co > 2 || has("gui_running")
   syntax on
   set hlsearch
@@ -201,11 +275,26 @@ filetype indent plugin on
 
 
 
-set rtp+=~/.vim/bundle/vundle/
- call vundle#rc()
 
-" let Vundle manage Vundle
-" required! 
+
+" ---------------- Plugins
+" ----------------
+" ----------------
+" ----------------
+" ----------------
+" ----------------
+" ----------------
+
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'w0rp/ale'
+
 Bundle 'gmarik/vundle'
 
 Bundle 'Lokaltog/vim-easymotion'
@@ -217,7 +306,6 @@ Bundle 'mattn/gist-vim'
   let g:gist_clip_command = 'pbcopy'
   let g:gist_show_privates = 1
 
-Bundle 'mutewinter/vim-css3-syntax'
 Bundle 'pangloss/vim-javascript'
 Bundle 'leshill/vim-json'
 Bundle 'nono/vim-handlebars'
@@ -234,11 +322,12 @@ Bundle "tomtom/tlib_vim"
 Bundle "honza/vim-snippets"
 Bundle "garbas/vim-snipmate"
 
+Bundle "justinmk/vim-sneak"
 Bundle 'scrooloose/nerdcommenter'
 Bundle 'scrooloose/nerdtree'
+Bundle 'tpope/vim-vinegar'
   autocmd vimenter * if !argc() | NERDTree | endif
 
-Bundle 'jsbeautify.vim'
 Bundle 'maksimr/vim-jsbeautify' 
   Bundle 'einars/js-beautify' 
 
@@ -248,5 +337,18 @@ Bundle 'maksimr/vim-jsbeautify'
 
 " CtrlP File Finder
 Bundle 'kien/ctrlp.vim'
-  set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " Linux/MacOSX
-  let g:ctrlp_map = '<c-f>'
+  set wildignore+=*/tmp/*,*.so,*.swp,*.zip    " Linux/MacOSX
+  let g:ctrlp_map = '<c-p>'
+  let g:ctrlp_cmd = 'CtrlP'
+  let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\.git$\|\.hg$\|\.svn$\|\.yardoc\|node_modules\|\node_modules\|public\/images\|public\/system\|data\|log\|tmp$',
+    \ 'file': '\.exe$\|\.so$\|\.dat$'
+    \ }
+
+
+Bundle 'dracula/vim'
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+
+
+
