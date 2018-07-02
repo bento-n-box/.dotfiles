@@ -1,3 +1,7 @@
+export NVM_DIR="$HOME/.nvm"
+export TERM=xterm-color
+
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 ZSH=$HOME/.oh-my-zsh
 # Path to your oh-my-zsh configuration.
 # Set name of the theme to load.
@@ -77,6 +81,7 @@ alias ephp="sudo vim /etc/php.ini"
 alias apr="sudo apachectl restart"
 alias iphone="open /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\ Simulator.app"
 alias ngxweb="sudo nginx -g 'daemon off;' -c nginx.conf -p ~/Development/VO/webclient-server"
+alias ngxwebd="sudo nginx -g -c nginx.conf -p ~/Development/VO/webclient-server"
 alias ngxstop="sudo nginx -s stop"
 alias updateVUI= "cd ~/Development/VO/victory-ui/ && npm version patch && npm publish && git push upstream HEAD:master --tags"
 alias clearStaging= "ssh repl1.stg.den02.victorops.net 'rm -rf .amm .ammonite'"
@@ -89,6 +94,7 @@ alias gtw="cd ~/Development/VO/webclient"
 alias gtv="cd ~/Development/VO/victory-ui"
 alias nb="git checkout development && git pull upstream development && git checkout -b"
 alias gcp="git cherry-pick"
+alias linked="ls -la /Users/brochester/Development/VO/webclient/node_modules/@victorops | grep '\->'"
 #alias killnginx ="sudo kill $(ps aux | grep '[n]ginx' | awk '$2')"
 
 function getOption() {
@@ -127,12 +133,21 @@ function create_ssh_pr {
   echo "https://github.com/"$(gitURL)"/compare/development...rochestb:$branch"
 }
 
-alias opr='open -a /Applications/Chrome\.app $(create_ssh_pr)'
+alias opr='open -a /Applications/Google\ Chrome.app $(create_ssh_pr)'
 
 function create_branch_pr {
   branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
   remote=$(git config remote.origin.url | cut -d. -f1-2)
   echo "$remote/compare/develop...$branch"
+}
+
+
+rcg () {
+  git rev-list --reverse $1..$2 . | git cherry-pick --strategy=recursive -X theirs --stdin
+}
+
+rnext () {
+  git reset && git cherry-pick --continue
 }
 
 alias ophr='open -a /Applications/Google\ Chrome.app $(create_branch_pr)'
