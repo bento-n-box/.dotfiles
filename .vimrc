@@ -10,6 +10,13 @@ set number
 "colorscheme SolarizedDark
 "let g:solarized_termcolors=256
 "
+"" Clipboard Stuff
+" always use system clipboard
+set clipboard+=unnamedplus
+
+" Mouse Stuff
+" use mouse integration
+set mouse=a
 
 "let &runtimepath.=',~/.vim/bundle/ale'
 
@@ -77,6 +84,8 @@ map <F5> :set invpaste paste?<Enter>
 imap <F5> <C-O><F5>
 set pastetoggle=<F5> " hit F5 before and after pasting
 nnoremap <F2> :NERDTreeToggle<CR>
+imap cll console.log();<Esc>==f(a
+vmap clc console.log('%c  ', 'background: #222; color: #bada55');<Esc>==F%ela
 
 
 " UPDATED 2010.08.05
